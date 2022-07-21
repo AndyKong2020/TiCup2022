@@ -2,6 +2,7 @@
 from pyb import UART
 uart = UART(3, 115200)
 
+
 class UartCommunication:  # UART通信协议
     def __init__(self):
         pass
