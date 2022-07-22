@@ -1,5 +1,6 @@
 # Untitled - By: lenovo - 周六 7月 16 2022
 from pyb import UART
+
 uart = UART(3, 115200)
 
 
@@ -24,6 +25,15 @@ class UartCommunication:  # UART通信协议
                        + "{:0>3}".format(y_target_location // 256) + "{:0>3}".format(y_target_location % 256) \
                        + "{:0>3}".format(z_target_location // 256) + "{:0>3}".format(z_target_location % 256) \
                        + '$'
+
+        elif data['instruction'] == 'line_patrol':  # 发送巡线角度（弧度）*10000+15000与截距*10000，参数angle、intercept(浮点数)
+            angle = int(data['angle'] * 10000) + 15000
+            intercept = int(data['intercept'] * 10000)
+            send_buf = 'line_patrol' \
+                       + "{:0>3}".format(angle // 256) + "{:0>3}".format(angle % 256) \
+                       + "{:0>3}".format(intercept // 256) + "{:0>3}".format(intercept % 256) \
+                       + '$'
+
 
         elif data['instruction'] == 'give_me_attitude_angle':  # 发送请求姿态角命令
             send_buf = 'give_me_attitude_angle$'
