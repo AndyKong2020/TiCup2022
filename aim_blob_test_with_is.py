@@ -1,4 +1,4 @@
-# Untitled - By: lenovo - 周六 7月 16 2022
+# Untitled - By: lenovo - 周六 7月 16 2022 错误：起始红框必须在视野内
 
 import sensor, image, time
 #import lcd
@@ -13,7 +13,7 @@ rol_angle = 0
 pit_angle = 0
 
 
-udata=UartCommunication
+udata = UartCommunication
 
 #lcd.init()
 #lcd.rotation(2)#成倒立像，需旋转
@@ -95,6 +95,7 @@ while True:
 
 
     print(aim_error)
+    udata.send(instruction = "target_location", x = aim_error[0], y = aim_error[1], z = 0)
 
 
 
