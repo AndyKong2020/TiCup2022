@@ -1,5 +1,5 @@
 import sensor, image, time
-#import lcd
+
 import math
 import cmath
 
@@ -123,13 +123,10 @@ while True:
         img.draw_cross(found_line_fixed[0], found_line_fixed[1], color = (255, 0, 0), size = 10, thickness = 2)
 
 
-        #udata.send(instruction = "line_patrol", angle = aim_error[0], intercept = aim_error[1])
+        udata.send(instruction = "line_patrol", angle = aim_error[0], intercept = aim_error[1])
         print(line_error)
 
 
 
 
-    #lcd.draw_string(20,50,"x:"+str(accel_array[0]))
-    #lcd.draw_string(20,70,"y:"+str(accel_array[1]))
-    #lcd.draw_string(20,90,"z:"+str(accel_array[2]))
-    #print(clock.fps())
+    
