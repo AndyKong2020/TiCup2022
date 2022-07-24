@@ -1,8 +1,7 @@
-# Untitled - By: lenovo - 周六 7月 16 2022
+
 from pyb import UART
-
-uart = UART(3, 115200)
-
+import pyb
+uart = UART(3, 230400)
 
 class UartCommunication:  # UART通信协议
     def __init__(self):
@@ -26,20 +25,22 @@ class UartCommunication:  # UART通信协议
                        + "{:0>3}".format(z_target_location // 256) + "{:0>3}".format(z_target_location % 256) \
                        + '$'
 
-        elif data['instruction'] == 'line_patrol':  # 发送巡线角度（弧度）*10000+15000与截距*10000，参数angle、intercept(浮点数)
-            angle = int(data['angle'] * 10000) + 15000
+        elif data['instruction'] == 'line_patrol':  # 发送巡线角度(0-180)*100与截距(0-1)*10000，参数angle、intercept(浮点数)
+            angle = int(data['angle'] * 100)
             intercept = int(data['intercept'] * 10000)
             send_buf = 'line_patrol' \
                        + "{:0>3}".format(angle // 256) + "{:0>3}".format(angle % 256) \
                        + "{:0>3}".format(intercept // 256) + "{:0>3}".format(intercept % 256) \
                        + '$'
 
-
         elif data['instruction'] == 'give_me_attitude_angle':  # 发送请求姿态角命令
             send_buf = 'give_me_attitude_angle$'
 
         send_buf = bytearray(send_buf, 'utf-8')  # 串口发送需转为8位二进制列表
-        uart.write(send_buf)  # 串口发送数据
+
+        uart.write(send_buf)    # 串口发送数据
+
+        pyb.delay(2)            #等待单片机响应
 
     def receive():  # 接收数据
         receive_buf = uart.read()  # 串口数据缓存，有效数据格式：字符'$'+指令/标识字符串+数据字符串
@@ -72,6 +73,9 @@ class UartCommunication:  # UART通信协议
                 rol_angle = (rol_angle - 15000) / 10000
                 pit_angle = (pit_angle - 15000) / 10000
                 return rol_angle, pit_angle
+
+            if receive_buf[1:num_bit + 1] == bytearray('LOG', 'utf-8'):
+                return 'LOG'
 
 # 调用方法举例：
 # udata=UartCommunication
