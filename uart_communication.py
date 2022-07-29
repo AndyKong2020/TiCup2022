@@ -1,7 +1,7 @@
 
 from pyb import UART
 import pyb
-uart = UART(3, 230400)
+uart = UART(3, 500000)
 
 class UartCommunication:  # UART通信协议
     def __init__(self):
@@ -19,22 +19,41 @@ class UartCommunication:  # UART通信协议
             x_target_location = int(data['x'] * 10000)
             y_target_location = int(data['y'] * 10000)
             z_target_location = int(data['z'] * 10000)
-            send_buf = 'target_location' \
+            send_buf = 'OPC' \
                        + "{:0>3}".format(x_target_location // 256) + "{:0>3}".format(x_target_location % 256) \
                        + "{:0>3}".format(y_target_location // 256) + "{:0>3}".format(y_target_location % 256) \
                        + "{:0>3}".format(z_target_location // 256) + "{:0>3}".format(z_target_location % 256) \
                        + '$'
 
-        elif data['instruction'] == 'line_patrol':  # 发送巡线角度(0-180)*100与截距(0-1)*10000，参数angle、intercept(浮点数)
+        elif data['instruction'] == 'line':  # 发送巡线角度(0-180)*100与截距(0-1)*10000，参数angle、intercept(浮点数)
             angle = int(data['angle'] * 100)
             intercept = int(data['intercept'] * 10000)
-            send_buf = 'line_patrol' \
+
+            send_buf = 'OPF' \
                        + "{:0>3}".format(angle // 256) + "{:0>3}".format(angle % 256) \
                        + "{:0>3}".format(intercept // 256) + "{:0>3}".format(intercept % 256) \
                        + '$'
 
         elif data['instruction'] == 'give_me_attitude_angle':  # 发送请求姿态角命令
-            send_buf = 'give_me_attitude_angle$'
+            send_buf = 'OPA$'
+
+        elif data['instruction'] == 'detour_pole':  # 发送绕杆距离（mm）水平误差（0-1）*10000，参数distance，毫米，yaw偏移量0-1，rol滚装偏移量0-1
+            distance = int(data['distance'])
+            yaw = int(data['yaw'] * 10000)
+            rol = int(data['rol'] * 10000)
+            send_buf = 'OPD' \
+                       + "{:0>3}".format(distance // 256) + "{:0>3}".format(distance % 256) \
+                       + "{:0>3}".format(yaw // 256) + "{:0>3}".format(yaw % 256) \
+                       + "{:0>3}".format(rol // 256) + "{:0>3}".format(rol % 256) \
+                       + '$'
+        elif data['instruction'] == 'targets':  # 发送两个坐标，1-12
+            target1 = int(data['target1'])
+            target2 = int(data['target2'])
+            
+            send_buf = 'OPT' \
+                       + "{:0>3}".format(target1 // 256) + "{:0>3}".format(target1 % 256) \
+                       + "{:0>3}".format(target2 // 256) + "{:0>3}".format(target2 % 256) \                    
+                       + '$'
 
         send_buf = bytearray(send_buf, 'utf-8')  # 串口发送需转为8位二进制列表
 
@@ -58,24 +77,25 @@ class UartCommunication:  # UART通信协议
                     receive_buf[i] = receive_buf[i] - 48
 
             # 指令识别判断与数据还原，自定义区域
-            if receive_buf[1:num_bit + 1] == bytearray('attitude_angle', 'utf-8') and len(
-                    receive_buf) > num_bit + 2 * 2 * 3:  # 接收姿态角数据，返回弧度值
+            if receive_buf[1:num_bit + 1] == bytearray('attitude_angle', 'utf-8') and len(receive_buf) > num_bit + 2 * 2 * 3:  # 接收姿态角数据，返回弧度值
 
-                rol_angle = (receive_buf[num_bit + 1] * 100 + receive_buf[num_bit + 2] * 10 + receive_buf[
-                    num_bit + 3]) * 256 \
-                            + receive_buf[num_bit + 4] * 100 + receive_buf[num_bit + 5] * 10 + receive_buf[num_bit + 6]
+                rol_angle = (receive_buf[num_bit +  1] * 100 + receive_buf[num_bit +  2] * 10 + receive_buf[ num_bit + 3]) * 256 \
+                           + receive_buf[num_bit +  4] * 100 + receive_buf[num_bit +  5] * 10 + receive_buf[ num_bit + 6]
 
-                pit_angle = (receive_buf[num_bit + 7] * 100 + receive_buf[num_bit + 8] * 10 + receive_buf[
-                    num_bit + 9]) * 256 \
-                            + receive_buf[num_bit + 10] * 100 + receive_buf[num_bit + 11] * 10 + receive_buf[
-                                num_bit + 12]
+                pit_angle = (receive_buf[num_bit +  7] * 100 + receive_buf[num_bit +  8] * 10 + receive_buf[ num_bit + 9]) * 256 \
+                           + receive_buf[num_bit + 10] * 100 + receive_buf[num_bit + 11] * 10 + receive_buf[ num_bit + 12]
 
                 rol_angle = (rol_angle - 15000) / 10000
                 pit_angle = (pit_angle - 15000) / 10000
                 return rol_angle, pit_angle
 
-            if receive_buf[1:num_bit + 1] == bytearray('LOG', 'utf-8'):
-                return 'LOG'
+            if receive_buf[1:num_bit + 1] == bytearray('Targets', 'utf-8') and len(receive_buf) > num_bit + 2 * 2 * 3:
+                target1 = (receive_buf[num_bit +  1] * 100 + receive_buf[num_bit +  2] * 10 + receive_buf[ num_bit + 3]) * 256 \
+                         + receive_buf[num_bit +  4] * 100 + receive_buf[num_bit +  5] * 10 + receive_buf[ num_bit + 6]
+                
+                target2 = (receive_buf[num_bit +  7] * 100 + receive_buf[num_bit +  8] * 10 + receive_buf[ num_bit + 9]) * 256 \
+                         + receive_buf[num_bit + 10] * 100 + receive_buf[num_bit + 11] * 10 + receive_buf[ num_bit + 12] 
+                return target1, target2
 
 # 调用方法举例：
 # udata=UartCommunication
