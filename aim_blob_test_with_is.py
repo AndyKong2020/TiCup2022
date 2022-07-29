@@ -172,8 +172,8 @@ while True:
     
     
                 else:
-                    temp1 = 0.5 + (max_blob[0] - (roi[0] + set_range[0]/2))/set_range[0]
-                    temp2 = 0.5 - (max_blob[1] - (roi[1] + set_range[1]/2))/set_range[1]
+                    temp1 = 0.5 + (max_blob[5] - (roi[0] + set_range[0]/2))/set_range[0]
+                    temp2 = 0.5 - (max_blob[6] - (roi[1] + set_range[1]/2))/set_range[1]
                     if abs(temp1 - last_rol) > 0.05 or abs(temp2 - last_pit) > 0.05:
                         print('error data')
                         #log.new('Frame',frame_count,'acute change')
