@@ -196,7 +196,7 @@ while(True):
                             color_shape_detecting[1] = 'rect'
                         elif red_or_not.density() > 0.6 and red_or_not.solidity() < 0.85:
                             color_shape_detecting[1] = 'circle'
-                        elif 0.4 < blue_or_not.density() < 0.5:
+                        elif 0.4 < red_or_not.density() < 0.5:
                             color_shape_detecting[1] = 'tri'
                         else:
                             print('重新鉴定形状')
