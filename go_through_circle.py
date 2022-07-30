@@ -50,7 +50,7 @@ while True:
     clock.tick()
     img = sensor.snapshot()
     #img.lens_corr(1.5)#畸变矫正，使用会降低画质
-    rod = img.find_blobs([rod_threshold], pixels_threshold=30)
+    rod = img.find_blobs([rod_threshold], roi = view, pixels_threshold=30)
     rod = find_maxblob(rod)#找杆
 
     if rod:
@@ -93,7 +93,7 @@ while True:
     clock.tick()
     img = sensor.snapshot()
     #img.lens_corr(1.5)#畸变矫正，使用会降低画质
-    rod = img.find_blobs([rod_threshold], pixels_threshold=30)
+    rod = img.find_blobs([rod_threshold], roi = view, pixels_threshold=30)
     rod = find_maxblob(rod)#找杆
 
     if rod:
