@@ -11,9 +11,9 @@ from uart_communication import UartCommunication
 red_led = pyb.LED(1)
 green_led = pyb.LED(2)
 blue_led = pyb.LED(3)   #LED
-pin0 = Pin('P0', Pin.OUT_PP, Pin.PULL_NONE)
+pin7 = Pin('P7', Pin.OUT_PP, Pin.PULL_NONE)
 pin1 = Pin('P1', Pin.IN, Pin.PULL_DOWN)
-pin0.value(1)
+pin7.value(1)
 
 
 frame_count=0           #帧数量
